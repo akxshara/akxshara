@@ -1,0 +1,53 @@
+import numpy as np
+
+# Generate some toy data (replace with your own dataset)
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([0, 1, 1, 0])
+
+# Initialize weights and biases
+input_size = 2
+hidden_size = 4
+output_size = 1
+learning_rate = 0.1
+
+# Define activation function (sigmoid)
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+# Initialize weights and biases
+W1 = np.random.randn(input_size, hidden_size)
+b1 = np.zeros((1, hidden_size))
+W2 = np.random.randn(hidden_size, output_size)
+b2 = np.zeros((1, output_size))
+
+# Training loop
+for epoch in range(10000):
+    # Forward propagation
+    z1 = np.dot(X, W1) + b1
+    a1 = sigmoid(z1)
+    z2 = np.dot(a1, W2) + b2
+    y_pred = sigmoid(z2)
+
+    # Compute loss (mean squared error)
+    loss = np.mean((y_pred - y) ** 2)
+
+    # Backpropagation
+    dloss_dypred = 2 * (y_pred - y)
+    dy_pred_dz2 = y_pred * (1 - y_pred)
+    dz2_da1 = W2.T
+    da1_dz1 = a1 * (1 - a1)
+
+    dloss_dz2 = dloss_dypred * dy_pred_dz2
+    dloss_da1 = np.dot(dloss_dz2, dz2_da1)
+    dloss_dz1 = dloss_da1 * da1_dz1
+
+    # Update weights and biases
+    W2 -= learning_rate * np.dot(a1.T, dloss_dz2)
+    b2 -= learning_rate * np.sum(dloss_dz2, axis=0)
+    W1 -= learning_rate * np.dot(X.T, dloss_dz1)
+    b1 -= learning_rate * np.sum(dloss_dz1, axis=0)
+
+# Make predictions
+new_data = np.array([[0, 1]])
+prediction = sigmoid(np.dot(sigmoid(np.dot(new_data, W1) + b1), W2) + b2)
+print("Prediction for new data:", prediction)
